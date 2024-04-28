@@ -1,0 +1,21 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install g++
+      run: sudo apt-get install g++ -y
+    - name: Compile C++ code
+      run: g++ -o HelloWorld ../main.cpp
+    - name: Run program
+      run: ./HelloWorld
+
