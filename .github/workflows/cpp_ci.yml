@@ -2,9 +2,9 @@ name: C++ CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ dev ]
 
 jobs:
   build:
@@ -18,4 +18,3 @@ jobs:
       run: g++ -o HelloWorld ../main.cpp
     - name: Run program
       run: ./HelloWorld
-
