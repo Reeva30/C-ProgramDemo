@@ -1,4 +1,4 @@
-name: Auto PR to Master
+name: Automatic Merge to Main
 
 on:
   push:
@@ -6,15 +6,19 @@ on:
       - Dev
 
 jobs:
-  createPullRequest:
+  auto-merge:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Create Pull Request
-        uses: repo-sync/pull-request@v2
         with:
-          destination_branch: "master"  # Base branch to which PR is made
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pr_title: "Automated Pull Request from Dev to Master"
-          pr_body: "Please review the changes and merge if approved."
+          ref: 'Dev'
+          fetch-depth: 0
+      - name: Automatic Merge to Main
+        uses: devmasx/merge-branch@v1.3.1
+        with:
+          type: now
+          from_branch: 'Dev'
+          target_branch: 'Main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
