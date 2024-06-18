@@ -20,10 +20,12 @@ jobs:
       uses: microsoft/setup-msbuild@v1
 
     - name: Install Qt Visual Studio Tools Extension
+      shell: pwsh
       run: |
         curl -LO https://download.qt.io/development_releases/vsaddin/qt-vs-addin-2.7.0/vsaddin-msvc2022.vsix
-        "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe" /quiet /a /q vsaddin-msvc2022.vsix
+        & "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe" /quiet /a /q "vsaddin-msvc2022.vsix"
 
     - name: Verify installation
+      shell: pwsh
       run: |
-        "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" /updateconfiguration
+        & "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" /updateconfiguration
