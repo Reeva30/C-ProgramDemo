@@ -10,61 +10,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Visual Studio 2022
-      uses: microsoft/setup-msbuild@v1
-
-    - name: Download Qt Visual Studio Tools Extension
-      shell: pwsh
+    - name: Install Visual Studio 2022 and Qt extension
       run: |
-        curl -LO https://download.qt.io/development_releases/vsaddin/qt-vs-addin-2.7.0/vsaddin-msvc2022.vsix
+        choco install visualstudio2022buildtools --yes --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.Windows10SDK.19041 --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang --add Microsoft.VisualStudio.Component.VC.ATLMFC --add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Core"
+        choco install qtcreator --yes
 
-    - name: Install Qt Visual Studio Tools Extension
-      shell: pwsh
+    - name: Setup Qt environment
       run: |
-        $vsixPath = "$env:USERPROFILE\vsaddin-msvc2022.vsix"
-        $possiblePaths = @(
-            "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe",
-            "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe",
-            "C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\VSIXInstaller.exe",
-            "C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\Common7\IDE\VSIXInstaller.exe",
-            "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VSIXInstaller.exe",
-            "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\VSIXInstaller.exe"
-        )
-        $vsixInstallerPath = $null
-        foreach ($path in $possiblePaths) {
-            if (Test-Path $path) {
-                $vsixInstallerPath = $path
-                break
-            }
-        }
-        if (-not $vsixInstallerPath) {
-            Write-Error "VSIXInstaller.exe not found in any of the expected paths."
-            throw "VSIXInstaller.exe not found."
-        }
-        Write-Output "VSIXInstaller.exe found at: $vsixInstallerPath"
-        & $vsixInstallerPath /quiet /a /q $vsixPath
+        echo "Setting up Qt environment variables"
+        $qtPath = (Get-Command qtcreator).Path
+        $qtDir = Split-Path $qtPath
+        echo "QT_DIR=$qtDir" >> $env:GITHUB_ENV
+        echo "QT_PLUGIN_PATH=$qtDir/plugins" >> $env:GITHUB_ENV
+        echo "QT_QPA_PLATFORM_PLUGIN_PATH=$qtDir/plugins/platforms" >> $env:GITHUB_ENV
+        echo "QT_BINARY_PATH=$qtDir/bin" >> $env:GITHUB_ENV
+        echo "$qtDir/bin" >> $env:GITHUB_PATH
 
-    - name: Verify installation
-      shell: pwsh
-      run: |
-        $possiblePaths = @(
-            "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe",
-            "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe",
-            "C:\Program Files\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe",
-            "C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\Common7\IDE\devenv.exe",
-            "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe",
-            "C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.exe"
-        )
-        $devenvPath = $null
-        foreach ($path in $possiblePaths) {
-            if (Test-Path $path) {
-                $devenvPath = $path
-                break
-            }
-        }
-        if (-not $devenvPath) {
-            Write-Error "devenv.exe not found in any of the expected paths."
-            throw "devenv.exe not found."
-        }
-        Write-Output "devenv.exe found at: $devenvPath"
-        & $devenvPath /updateconfiguration
+    - name: Install dependencies
+      run: choco install cmake --yes
+
+    - name: Build
+      run: cmake --build .
