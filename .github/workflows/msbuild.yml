@@ -16,36 +16,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up Visual Studio
+    - name: Set up Visual Studio 2022
       uses: microsoft/setup-msbuild@v1
 
-
-    - name: Install vswhere
-      run: choco install vswhere
-
-    - name: Install Qt 5.15.2
-      run: choco install qt5-default --version=5.15.2.20240217
-
-    - name: Clone Qt Visual Studio Tools
-      run: git clone https://code.qt.io/qt-labs/vstools.git
-
-    - name: Set environment variables
+    - name: Install Qt Visual Studio Tools Extension
       run: |
-        echo "QTBUILD_STATIC_VS2022=C:\\Qt\\5.15.2\\msvc2019_64" >> $GITHUB_ENV
-
-    - name: Build Qt Visual Studio Tools
-      run: |
-        cd vstools
-        vstools.bat -init -startvs
+        curl -LO https://download.qt.io/development_releases/vsaddin/qt-vs-addin-2.7.0/vsaddin-msvc2022.vsix
+        "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe" /quiet /a /q vsaddin-msvc2022.vsix
 
     - name: Verify installation
       run: |
-        vswhere -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-
-    - name: List Visual Studio Extensions
-      run: |
-        powershell -command "Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions'"
-
-    - name: Check installation
-      run: |
-        powershell -command "Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions' | Where-Object { $_.Name -like '*Qt*' }"
+        "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" /updateconfiguration
