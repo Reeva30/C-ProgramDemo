@@ -22,10 +22,24 @@ jobs:
     - name: Install Qt Visual Studio Tools Extension
       shell: pwsh
       run: |
-        curl -LO https://download.qt.io/development_releases/vsaddin/qt-vs-addin-2.7.0/vsaddin-msvc2022.vsix
-        & "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe" /quiet /a /q "vsaddin-msvc2022.vsix"
+        $vsixPath = "$env:USERPROFILE\vsaddin-msvc2022.vsix"
+        $vsixInstallerPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe"
+        if (-Not (Test-Path $vsixInstallerPath)) {
+          $vsixInstallerPath = "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe"
+        }
+        if (-Not (Test-Path $vsixInstallerPath)) {
+          throw "VSIXInstaller.exe not found."
+        }
+        & $vsixInstallerPath /quiet /a /q $vsixPath
 
     - name: Verify installation
       shell: pwsh
       run: |
-        & "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" /updateconfiguration
+        $devenvPath = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"
+        if (-Not (Test-Path $devenvPath)) {
+          $devenvPath = "C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"
+        }
+        if (-Not (Test-Path $devenvPath)) {
+          throw "devenv.exe not found."
+        }
+        & $devenvPath /updateconfiguration
