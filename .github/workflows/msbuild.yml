@@ -22,20 +22,20 @@ jobs:
         toolchain: 1.76.0
         override: true
 
-    - name: Install Visual Studio Build Tools
-      uses: microsoft/setup-msbuild@v1.0.2
-
-    - name: Install Visual Studio 2022 Components
+    - name: Install Winget
       run: |
-        # Install necessary components including Qt and C++ development tools
-        vs_installer.exe modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Community" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang --add Component.QT
+        Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/download/v1.3.2091-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle -OutFile Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+        Add-AppxPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
 
-
-    - name: Set Environment Variables
+    - name: Install Visual Studio 2022
       run: |
-        echo "DEVENV_ROOT_2022=C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE" >> $GITHUB_ENV
-        echo "OPENTWIN_DEV_ROOT=${{ github.workspace }}" >> $GITHUB_ENV
+        winget install -e --id Microsoft.VisualStudio.2022.Community --source winget
+        "C:\Program Files\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Community" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang --add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions --add Component.Qt.Qt5
 
+    - name: Install Qt Visual Studio Tools
+      run: |
+        winget install -e --id TheQtCompany.QtVisualStudioTools --source winget
+        
     - name: Build OpenTwin
       run: |
         cd ${{ github.workspace }}\MasterBuild
