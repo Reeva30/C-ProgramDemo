@@ -25,10 +25,11 @@ jobs:
     - name: Install Visual Studio Build Tools
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Download and Install Qt Extension for Visual Studio
+    - name: Install Visual Studio 2022 Components
       run: |
-        curl -L -o qt-vs-tools.msi "URL_TO_SPECIFIC_QT_VS_TOOLS_VERSION"
-        msiexec /i qt-vs-tools.msi /quiet /norestart
+        # Install necessary components including Qt and C++ development tools
+        vs_installer.exe modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Community" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang --add Component.QT
+
 
     - name: Set Environment Variables
       run: |
