@@ -23,20 +23,15 @@ jobs:
     - name: Install vswhere
       run: choco install vswhere
 
-    - name: Download Qt 5.15.9
-      run: |
-        curl -LO https://download.qt.io/official_releases/qt/5.15/5.15.9/qt-opensource-windows-x86-5.15.9.exe
-
-    - name: Install Qt 5.15.9
-      run: |
-        qt-opensource-windows-x86-5.15.9.exe /silent
+    - name: Install Qt 5.15.2
+      run: choco install qt5-default --version=5.15.2.20240217
 
     - name: Clone Qt Visual Studio Tools
       run: git clone https://code.qt.io/qt-labs/vstools.git
 
     - name: Set environment variables
       run: |
-        echo "QTBUILD_STATIC_VS2022=C:\\Qt\\5.15.9\\msvc2019_64" >> $GITHUB_ENV
+        echo "QTBUILD_STATIC_VS2022=C:\\Qt\\5.15.2\\msvc2019_64" >> $GITHUB_ENV
 
     - name: Build Qt Visual Studio Tools
       run: |
@@ -54,4 +49,3 @@ jobs:
     - name: Check installation
       run: |
         powershell -command "Get-ChildItem -Path 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions' | Where-Object { $_.Name -like '*Qt*' }"
-
