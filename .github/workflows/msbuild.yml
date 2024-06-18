@@ -27,7 +27,7 @@ jobs:
 
     - name: Install Qt Extension for Visual Studio
       run: |
-        choco install qt-vs-tools --version=2.7.1
+        choco install qt-vs-tools --pre
 
     - name: Set Environment Variables
       run: |
