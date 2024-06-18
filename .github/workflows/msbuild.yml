@@ -25,9 +25,10 @@ jobs:
     - name: Install Visual Studio Build Tools
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Install Qt Extension for Visual Studio
+    - name: Download and Install Qt Extension for Visual Studio
       run: |
-        choco install qt-vs-tools --pre
+        curl -L -o qt-vs-tools.msi "URL_TO_SPECIFIC_QT_VS_TOOLS_VERSION"
+        msiexec /i qt-vs-tools.msi /quiet /norestart
 
     - name: Set Environment Variables
       run: |
