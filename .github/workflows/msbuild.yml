@@ -22,20 +22,25 @@ jobs:
         toolchain: 1.76.0
         override: true
 
-    - name: Install Winget
+    - name: Download Visual Studio Installer
       run: |
-        Invoke-WebRequest -Uri https://github.com/microsoft/winget-cli/releases/download/v1.3.2091-preview/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle -OutFile Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
-        Add-AppxPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle
+        curl -L -o vs_installer.exe "https://aka.ms/vs/17/release/vs_installer.exe"
 
-    - name: Install Visual Studio 2022
+    - name: Install Visual Studio 2022 and Components
       run: |
-        winget install -e --id Microsoft.VisualStudio.2022.Community --source winget
-        "C:\Program Files\Microsoft Visual Studio\Installer\vs_installer.exe" modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Community" --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --add Microsoft.VisualStudio.Component.VC.CMake.Project --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang --add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions --add Component.Qt.Qt5
+        vs_installer.exe modify --installPath "C:\Program Files\Microsoft Visual Studio\2022\Community" \
+          --add Microsoft.VisualStudio.Workload.NativeDesktop \
+          --add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 \
+          --add Microsoft.VisualStudio.Component.VC.CMake.Project \
+          --add Microsoft.VisualStudio.ComponentGroup.NativeDesktop.Llvm.Clang \
+          --add Microsoft.VisualStudio.ComponentGroup.WebToolsExtensions \
+          --add Component.Qt
 
     - name: Install Qt Visual Studio Tools
       run: |
-        winget install -e --id TheQtCompany.QtVisualStudioTools --source winget
-        
+        curl -L -o qt-vs-tools.vsix "https://download.qt.io/official_releases/vsaddin/qt-vs-addin-2.7.0.vsix"
+        "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\VSIXInstaller.exe" /quiet /norestart qt-vs-tools.vsix
+
     - name: Build OpenTwin
       run: |
         cd ${{ github.workspace }}\MasterBuild
