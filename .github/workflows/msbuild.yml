@@ -105,8 +105,11 @@ jobs:
         set QTDIR=%QT_ROOT_DIR%
         set QMAKESPEC=win32-msvc
         set QT_PLUGIN_PATH=%QT_ROOT_DIR%\plugins
+        set QtMsBuild=%QT_ROOT_DIR%\bin\qt-msbuild.exe
         echo "OPENTWIN_DEV_ROOT=%OPENTWIN_DEV_ROOT%"
         echo "DEVENV_ROOT_2022=%DEVENV_ROOT_2022%"
+        echo "QT_ROOT_DIR=%QT_ROOT_DIR%"
+        echo "QtMsBuild=%QtMsBuild%"
         echo "Checking directories and necessary files..."
         echo "OpenTwin directory: %OPENTWIN_DEV_ROOT%"
         dir %OPENTWIN_DEV_ROOT%
@@ -115,6 +118,10 @@ jobs:
         echo "Qt directory: %QT_ROOT_DIR%"
         dir "%QT_ROOT_DIR%"
         echo "Checking if build.bat exists..."
+        if not exist "%OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\build.bat" (
+          echo "build.bat not found"
+          exit /b 1
+        )
         echo "Starting build.bat..."
         call %OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\build.bat
         echo "All checks passed."
