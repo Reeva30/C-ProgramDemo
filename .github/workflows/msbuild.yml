@@ -11,8 +11,6 @@ env:
   DEVENV_PATH2: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.com
   QT_VERSION: 6.6.1
   QT_MSVC_ARCH: win64_msvc2019_64
-  QT_PATH: ${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}
-  QT_MSBUILD: ${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}
 
 permissions:
   contents: read
@@ -129,8 +127,8 @@ jobs:
     # Step 14: Debug - Check Environment Variables
     - name: Debug - Check Environment Variables
       run: |
-        echo "QT_PATH: %QT_PATH%"
-        echo "QT_MSBUILD: %QT_MSBUILD%"
-        dir %QT_PATH%
-        dir %QT_MSBUILD%
+        echo "QT_PATH: ${{ env.QT_PATH }}"
+        echo "QT_MSBUILD: ${{ env.QT_MSBUILD }}"
+        dir ${{ env.QT_PATH }}
+        dir ${{ env.QT_MSBUILD }}
       shell: cmd
