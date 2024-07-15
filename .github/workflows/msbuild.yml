@@ -95,8 +95,7 @@ jobs:
         dir "%QT_ROOT_DIR%"
         echo "Checking if BuildAll.bat exists..."
         echo "Starting BuildAll.bat..."
-        "%DEVENV_ROOT_2022%\devenv.com" "%OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\OTWidgets.vcxproj" %TYPE% "Debug|x64"
-
+        call %OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\build.bat
         echo "All checks passed."
 
     - name: Debug - Check Environment Variables
