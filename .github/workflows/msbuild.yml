@@ -67,9 +67,6 @@ jobs:
         dir ${{ github.workspace }}\qt\Qt\${{ env.QT_VERSION }}\msvc2019_64\bin
       shell: cmd
 
-    - name: Add Visual Studio to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-
     # Step 4: Debug - List repository files and Qt directory
     - name: Debug - List repository files and Qt directory
       run: |
