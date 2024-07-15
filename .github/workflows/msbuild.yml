@@ -10,8 +10,9 @@ env:
   DEVENV_PATH: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE
   DEVENV_PATH2: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.com
   QT_VERSION: 6.6.1
-  QT_PATH: ${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/msvc2019_64
-  QT_MSBUILD: ${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/msvc2019_64
+  QT_MSVC_ARCH: win64_msvc2019_64
+  QT_PATH: ${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}
+  QT_MSBUILD: ${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}
 
 permissions:
   contents: read
@@ -31,8 +32,7 @@ jobs:
 
     # Step 2: Install Rust 1.76.0
     - name: Install Rust 1.76.0
-      run: |
-        choco install rust --version=1.76.0 -y
+      run: choco install rust --version=1.76.0 -y
       shell: cmd
 
     # Step 3: Install Qt using install-qt-action
@@ -40,63 +40,67 @@ jobs:
       uses: jurplel/install-qt-action@v4
       with:
         version: ${{ env.QT_VERSION }}
-        host: windows
-        target: desktop
-        arch: win64_msvc2019_64
-        dir: ${{ github.workspace }}/qt
-        install-deps: true
+        host: 'windows'
+        target: 'desktop'
+        arch: ${{ env.QT_MSVC_ARCH }}
+        dir: ${{ github.workspace }}\Qt
 
+    # Step 4: Add Visual Studio to PATH
     - name: Add Visual Studio to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    # Step 4: Set Qt path and refresh environment
+    # Step 5: Set Qt path and refresh environment
     - name: Set Qt path and refresh
       run: |
-        echo "${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        echo "${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         refreshenv
 
-    # Step 5: Check availability of Qt libraries
+    # Step 6: Check availability of Qt libraries
     - name: Check availability of Qt libraries
       run: |
-        dir ${{ github.workspace }}\qt\Qt\${{ env.QT_VERSION }}\msvc2019_64\lib
+        dir ${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}\lib
       shell: cmd
 
-    # Step 6: Check availability of Qt binaries
+    # Step 7: Check availability of Qt binaries
     - name: Check availability of Qt binaries
       run: |
-        dir ${{ github.workspace }}\qt\Qt\${{ env.QT_VERSION }}\msvc2019_64\bin
+        dir ${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}\bin
       shell: cmd
 
+    # Step 8: Set up Node.js
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
         node-version: '14' # specify the version you need
 
+    # Step 9: Install Yarn
     - name: Install Yarn
       run: npm install -g yarn
 
+    # Step 10: Install dependencies
     - name: Install dependencies
       run: yarn install
 
-    # Step 7: Install Python and Sphinx
+    # Step 11: Set up Python
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
+    # Step 12: Install Sphinx and dependencies
     - name: Install Sphinx and dependencies
       run: |
         python -m pip install --upgrade pip
         pip install sphinx sphinx-rtd-theme
 
-    # Step 8: Setup and Execute Build with devenv
+    # Step 13: Setup and Execute Build with devenv
     - name: Setup and Execute Build
       shell: cmd
       run: |
         echo "Current directory: %cd%"
         set OPENTWIN_DEV_ROOT=%cd%\OpenTwin
         set DEVENV_ROOT_2022=%DEVENV_PATH%
-        set QT_ROOT_DIR=${{ github.workspace }}\qt\Qt\${{ env.QT_VERSION }}\msvc2019_64
+        set QT_ROOT_DIR=${{ github.workspace }}\Qt\${{ env.QT_VERSION }}\${{ env.QT_MSVC_ARCH }}
         set PATH=%QT_ROOT_DIR%\bin;%PATH%
         set QTDIR=%QT_ROOT_DIR%
         set QMAKESPEC=win32-msvc
@@ -110,13 +114,12 @@ jobs:
         dir "%DEVENV_ROOT_2022%"
         echo "Qt directory: %QT_ROOT_DIR%"
         dir "%QT_ROOT_DIR%"
-        echo "Checking if BuildAll.bat exists..."
-        echo "Starting BuildAll.bat..."
-        "%DEVENV_ROOT_2022%\devenv.com" "%OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\OTWidgets.vcxproj" /build "Debug|x64"
-
+        echo "Checking if build.bat exists..."
+        echo "Starting build.bat..."
+        call %OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\build.bat
         echo "All checks passed."
 
-    # Step 9: Debug - Check Environment Variables
+    # Step 14: Debug - Check Environment Variables
     - name: Debug - Check Environment Variables
       run: |
         echo "QT_PATH: %QT_PATH%"
