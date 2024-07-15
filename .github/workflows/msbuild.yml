@@ -9,8 +9,9 @@ on:
 env:
   DEVENV_PATH: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE
   DEVENV_PATH2: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.com
-  QT_PATH: ${{ github.workspace }}/Qt/6.6.1/msvc2019_64
-  QT_MSBUILD: ${{ github.workspace }}/Qt/6.6.1/msvc2019_64
+  QT_VERSION: 6.6.1
+  QT_PATH: ${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/msvc2019_64
+  QT_MSBUILD: ${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/msvc2019_64
 
 permissions:
   contents: read
@@ -38,11 +39,33 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
-        version: '6.6.1'
-        host: 'windows'
-        target: 'desktop'
-        arch: 'win64_msvc2019_64'
-        dir: ${{ github.workspace }}/Qt
+        version: ${{ env.QT_VERSION }}
+        host: windows
+        target: desktop
+        arch: win64_msvc2019_64
+        dir: ${{ github.workspace }}/qt
+        install-deps: true
+
+    - name: Add Visual Studio to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    # Step 4: Set Qt path and refresh environment
+    - name: Set Qt path and refresh
+      run: |
+        echo "${{ github.workspace }}/qt/Qt/${{ env.QT_VERSION }}/msvc2019_64/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        refreshenv
+
+    # Step 5: Check availability of Qt libraries
+    - name: Check availability of Qt libraries
+      run: |
+        dir ${{ github.workspace }}\qt\Qt\${{ env.QT_VERSION }}\msvc2019_64\lib
+      shell: cmd
+
+    # Step 6: Check availability of Qt binaries
+    - name: Check availability of Qt binaries
+      run: |
+        dir ${{ github.workspace }}\qt\Qt\${{ env.QT_VERSION }}\msvc2019_64\bin
+      shell: cmd
 
     - name: Add Visual Studio to PATH
       uses: microsoft/setup-msbuild@v1.0.2
