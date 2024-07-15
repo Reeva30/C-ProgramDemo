@@ -28,13 +28,13 @@ jobs:
         ref: Ci
         path: OpenTwin
 
-    # Step 3: Install Rust 1.76.0
+    # Step 2: Install Rust 1.76.0
     - name: Install Rust 1.76.0
       run: |
         choco install rust --version=1.76.0 -y
       shell: cmd
 
-    # Step 4: Install Qt using install-qt-action
+    # Step 3: Install Qt using install-qt-action
     - name: Install Qt
       uses: jurplel/install-qt-action@v4
       with:
@@ -47,8 +47,13 @@ jobs:
     - name: Add Visual Studio to PATH
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Debug - List repository files
-      run: dir /s
+    # Step 4: Debug - List repository files and Qt directory
+    - name: Debug - List repository files and Qt directory
+      run: |
+        echo "Listing repository files..."
+        dir /s
+        echo "Checking Qt installation directory..."
+        dir ${{ github.workspace }}/Qt/6.6.1/msvc2019_64
       shell: cmd
 
     - name: Set up Node.js
@@ -62,7 +67,7 @@ jobs:
     - name: Install dependencies
       run: yarn install
       
-    # Install Python and Sphinx
+    # Step 5: Install Python and Sphinx
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -73,6 +78,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install sphinx sphinx-rtd-theme
 
+    # Step 6: Setup and Execute Build
     - name: Setup and Execute Build
       shell: cmd
       run: |
@@ -95,9 +101,10 @@ jobs:
         dir "%QT_ROOT_DIR%"
         echo "Checking if BuildAll.bat exists..."
         echo "Starting BuildAll.bat..."
-        call %OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\build.bat
+        "%DEVENV_ROOT_2022%\devenv.com" "%OPENTWIN_DEV_ROOT%\Libraries\OTWidgets\OTWidgets.vcxproj" %TYPE% "Debug|x64"
         echo "All checks passed."
 
+    # Step 7: Debug - Check Environment Variables
     - name: Debug - Check Environment Variables
       run: |
         echo "QT_PATH: %QT_PATH%"
